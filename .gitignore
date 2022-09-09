@@ -39,4 +39,4 @@ coverage/
 
 # Cache
 .prettiercache
-.eslintcache
+.eslintcache.env
