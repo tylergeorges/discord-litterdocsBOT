@@ -5,45 +5,6 @@ require('dotenv').config();
 const discord_js_1 = require("discord.js");
 const channel_1 = require("../commands/helpers/channel");
 const CommandHandler_1 = require("../handlers/CommandHandler");
-const exampleEmbed = {
-    color: 0x0099ff,
-    title: 'Channels',
-    description: 'All Channels',
-    fields: [
-        {
-            name: 'Regular field title',
-            value: 'Some value here',
-        },
-        {
-            name: '\u200b',
-            value: '\u200b',
-            inline: false,
-        },
-        {
-            name: 'Inline field title',
-            value: 'Some value here',
-            inline: true,
-        },
-        {
-            name: 'Inline field title',
-            value: 'Some value here',
-            inline: true,
-        },
-        {
-            name: 'Inline field title',
-            value: 'Some value here',
-            inline: true,
-        },
-    ],
-    image: {
-        url: 'https://i.imgur.com/AfFp7pu.png',
-    },
-    timestamp: new Date().toISOString(),
-    footer: {
-        text: 'Some footer text here',
-        icon_url: 'https://i.imgur.com/AfFp7pu.png',
-    },
-};
 let prefix = '.';
 const token = `${process.env.TOKEN}`;
 const clientIntents = [
@@ -56,14 +17,63 @@ const clientIntents = [
     discord_js_1.GatewayIntentBits.GuildMembers
 ];
 //! convert to typescript
-const getChannelNames = (textChannels) => {
-    let counter = 1;
-    return textChannels.map((channel, key) => {
-        // return `\n [${counter++}]${channel.name} \n`
-        exampleEmbed.fields.push({ name: `${counter}`, value: channel.name, inline: true });
+const getThreadNames = async (parentId, interaction) => {
+    const guild = interaction.guild;
+    const parentChannel = await (0, channel_1.getChannelById)(exports.client, parentId);
+    const threads = await (0, channel_1.getThreads)(parentId, guild);
+    //! returns new array with threads data
+    const threadsArr = threads.map((thread, key) => {
+        return {
+            label: thread.name,
+            description: 'This is a thread!',
+            value: thread.id
+        };
     });
+    // ! spreads new threads array and turns them into selections
+    const row = new discord_js_1.ActionRowBuilder()
+        .addComponents(new discord_js_1.SelectMenuBuilder()
+        .setCustomId('thread_select')
+        .setPlaceholder(`Select thread in channel ${parentChannel.name}`)
+        .addOptions(...threadsArr));
+    interaction.reply({ components: [row] });
+};
+const getChannelNames = (textChannels, message) => {
+    //! returns new array with channel data
+    const channelsArr = textChannels.map((channel, key) => {
+        console.log(channel);
+        return {
+            label: channel.name,
+            description: 'This is a description',
+            value: channel.id
+        };
+    });
+    // ! spreads new channel array and turns them into selections
+    const row = new discord_js_1.ActionRowBuilder()
+        .addComponents(new discord_js_1.SelectMenuBuilder()
+        .setCustomId('channel_select')
+        .setPlaceholder('Nothing Selected')
+        .addOptions(...channelsArr));
+    message.channel.send({ content: "Select a notes channel.", components: [row] });
 };
 exports.client = new discord_js_1.Client({ intents: clientIntents });
+exports.client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isSelectMenu())
+        return;
+    switch (interaction.customId) {
+        case "channel_select":
+            const parentId = interaction.values[0];
+            const parent = interaction.client.channels.fetch(parentId);
+            getThreadNames(parentId, interaction);
+            break;
+        case "thread_select":
+            const lastMsgID = interaction.channel?.lastMessageId;
+            const lastMsg = interaction.channel?.messages.fetch(lastMsgID);
+            console.log("last message: ", lastMsg, "\n interaction: ", interaction.);
+            // interaction.reply(`chose thread: ${interaction.}`)
+            break;
+        default: interaction.reply("error");
+    }
+});
 exports.client.on("messageCreate", async (message) => {
     if (message.author.bot)
         return;
@@ -78,9 +88,8 @@ exports.client.on("messageCreate", async (message) => {
     // textChannels.map
     if (textChannels) {
         let counter = 0;
-        await getChannelNames(textChannels);
+        await getChannelNames(textChannels, message);
         // message.channel.send(`> Channels ${await getChannelNames(textChannels)}`)
-        message.channel.send({ embeds: [exampleEmbed] });
         // message.channel.send(`> Channels ${await getChannelNames(textChannels)}`)
     }
     console.log("no");

@@ -25,11 +25,11 @@ export const getAllChannels = async (client:Client, guild: Guild): Promise<Colle
     return channels
 }
 
-export const getThreads = async (client:Client, guild: Guild): Promise<Collection<string, GuildBasedChannel>>  =>{
+export const getThreads = async (parentId, guild: Guild): Promise<Collection<string, GuildBasedChannel>>  =>{
     //! returns all thread channels
 
 
-    let threads =  await guild.channels.cache.filter(channel => channel.isThread()) as Collection<string, GuildBasedChannel>
+    let threads =  await guild.channels.cache.filter(channel => channel.isThread() && channel.parentId == parentId)
 
     return threads
 }

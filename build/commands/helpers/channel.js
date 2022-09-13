@@ -21,9 +21,9 @@ const getAllChannels = async (client, guild) => {
     return channels;
 };
 exports.getAllChannels = getAllChannels;
-const getThreads = async (client, guild) => {
+const getThreads = async (parentId, guild) => {
     //! returns all thread channels
-    let threads = await guild.channels.cache.filter(channel => channel.isThread());
+    let threads = await guild.channels.cache.filter(channel => channel.isThread() && channel.parentId == parentId);
     return threads;
 };
 exports.getThreads = getThreads;
