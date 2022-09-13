@@ -1,7 +1,7 @@
-const {ChannelType} = require('discord.js')
+import {ChannelType} from 'discord.js'
 
 
-const createCategory = async ( message, categoryName) =>{
+export const createCategory = async ( message, categoryName) =>{
 
     console.log("message:", message, categoryName)
     try{
@@ -30,7 +30,7 @@ const createCategory = async ( message, categoryName) =>{
 
 
 //if category exists returns the id else it makes the category and returns the id and that it exists
-const findCategory =  async (client, message, categoryName) =>{
+export const getCategory =  async (client, message, categoryName) =>{
 
     const category = await client.channels.cache.find(category => category.name == categoryName)
     
@@ -47,5 +47,3 @@ const findCategory =  async (client, message, categoryName) =>{
     }
 }
 
-
-module.exports = {findCategory, createCategory}

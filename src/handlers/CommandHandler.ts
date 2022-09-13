@@ -1,10 +1,16 @@
-const {newNotes} = require('../commands/newNotes')
-const {findChannel} = require('../commands/helpers/channel')
+import {newNotes} from '../commands/newNotes'
+import  {getChannelByName} from '../commands/helpers/channel'
+import { Client, Guild, Message } from 'discord.js'
 
 
 //! Handles incoming commands
-const CommandHandler = async (client, message, command) =>{
+export const CommandHandler = async (client: Client, message: Message, command: string) =>{
     const categoryName = "NOTES"
+
+    const guildId = message.guildId as string
+    
+    const guild:Guild  = client.guilds.cache.get(guildId) as Guild
+
 
     switch(command){
         case 'new_notes':
@@ -12,10 +18,9 @@ const CommandHandler = async (client, message, command) =>{
             //! splits channel name from command 
             const channelName = `📝${message.content.split(command)[1].trim()}`
 
-            const channelExists = await findChannel(client, channelName)
+            const channelExists = await getChannelByName(client, channelName, guild)
 
              !channelExists ?
-             
              newNotes(client, message, channelName, categoryName) 
              : 
              await message.channel.send("Channel already exists!")
@@ -27,5 +32,3 @@ const CommandHandler = async (client, message, command) =>{
     }
 
 }
-
-module.exports = { CommandHandler }

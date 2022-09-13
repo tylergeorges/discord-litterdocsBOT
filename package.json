@@ -2,17 +2,25 @@
   "name": "notes_manager",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "build/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./main.js"
+    "start:ts": "tsc -w",
+    "start:js": "nodemon build/main.js",
+    "start": "concurrently npm:start:*"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^1.1.0",
+    "concurrently": "^7.4.0",
     "discord.js": "^14.3.0",
     "dotenv": "^16.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.16",
+    "nodemon": "^2.0.19",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.3"
   }
 }
