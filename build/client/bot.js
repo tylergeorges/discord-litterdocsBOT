@@ -17,8 +17,8 @@ const clientIntents = [
     discord_js_1.GatewayIntentBits.GuildMembers
 ];
 //! convert to typescript
-const getThreadNames = async (parentId, interaction) => {
-    const guild = interaction.guild;
+const getThreadNames = async (parentId, message, interaction) => {
+    const guild = message.guild;
     const parentChannel = await (0, channel_1.getChannelById)(exports.client, parentId);
     const threads = await (0, channel_1.getThreads)(parentId, guild);
     //! returns new array with threads data
@@ -35,44 +35,60 @@ const getThreadNames = async (parentId, interaction) => {
         .setCustomId('thread_select')
         .setPlaceholder(`Select thread in channel ${parentChannel.name}`)
         .addOptions(...threadsArr));
-    interaction.reply({ components: [row] });
+    interaction.reply({ components: [row], ephemeral: true });
 };
 const getChannelNames = (textChannels, message) => {
     //! returns new array with channel data
     const channelsArr = textChannels.map((channel, key) => {
-        console.log(channel);
         return {
             label: channel.name,
             description: 'This is a description',
             value: channel.id
         };
     });
-    // ! spreads new channel array and turns them into selections
-    const row = new discord_js_1.ActionRowBuilder()
-        .addComponents(new discord_js_1.SelectMenuBuilder()
-        .setCustomId('channel_select')
-        .setPlaceholder('Nothing Selected')
-        .addOptions(...channelsArr));
-    message.channel.send({ content: "Select a notes channel.", components: [row] });
+    return channelsArr;
 };
 exports.client = new discord_js_1.Client({ intents: clientIntents });
 exports.client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isSelectMenu())
-        return;
-    switch (interaction.customId) {
-        case "channel_select":
-            const parentId = interaction.values[0];
-            const parent = interaction.client.channels.fetch(parentId);
-            getThreadNames(parentId, interaction);
-            break;
-        case "thread_select":
-            const lastMsgID = interaction.channel?.lastMessageId;
-            const lastMsg = interaction.channel?.messages.fetch(lastMsgID);
-            console.log("last message: ", lastMsg, "\n interaction: ", interaction.);
-            // interaction.reply(`chose thread: ${interaction.}`)
-            break;
-        default: interaction.reply("error");
-    }
+    //  console.log("interaction: ", (await interaction.channel?.messages.fetch({ limit: 1 })))
+    // if (!interaction.isSelectMenu()) return;
+    // console.log(interaction)
+    // if(!interaction.isSelectMenu()){
+    // 	console.log('aaa')
+    // 	repliedTo = (await interaction.channel?.messages.cache.last()?.fetchReference())?.content 
+    // }
+    if (interaction.isSelectMenu())
+        switch (interaction.customId) {
+            case "channel_select":
+                const repliedTo = await interaction.channel?.messages.cache.last()?.fetchReference();
+                const parentId = interaction.values[0];
+                const parent = interaction.client.channels.fetch(parentId);
+                getThreadNames(parentId, repliedTo, interaction);
+                break;
+            //! once thread from menu is selected
+            case "thread_select":
+                const threadId = interaction.values[0];
+                const thread = await interaction.client.channels.fetch(threadId);
+                const lastMsg = await (await interaction.channel?.messages.cache.last()?.fetchReference())?.fetchReference();
+                const channelSelect = await interaction.channel?.messages.cache.last()?.fetchReference();
+                console.log(thread, lastMsg);
+                //! if last message is a thread select menu replace it
+                // console.log("last message: ", lastMsg.components, lastMsg.content)
+                // , "\n interaction: ", interaction
+                thread.send({ content: lastMsg.content });
+                const threadEmbed = new discord_js_1.EmbedBuilder()
+                    .setColor(0x0099FF)
+                    .setTitle(`${thread.name}`)
+                    .setURL(`https://discord.com/channels/${thread.guildId}/${thread.id}`)
+                    .setDescription(`Message added to ${thread.name}!`)
+                    .setTimestamp();
+                interaction.reply({ embeds: [threadEmbed], ephemeral: true });
+                channelSelect.delete();
+                lastMsg.delete();
+                // interaction.reply(`chose thread: ${interaction.}`)
+                break;
+            default: interaction.reply("error");
+        }
 });
 exports.client.on("messageCreate", async (message) => {
     if (message.author.bot)
@@ -85,12 +101,16 @@ exports.client.on("messageCreate", async (message) => {
         (0, CommandHandler_1.CommandHandler)(exports.client, message, command);
     }
     const textChannels = await (0, channel_1.getAllChannels)(exports.client, guild);
-    // textChannels.map
     if (textChannels) {
         let counter = 0;
-        await getChannelNames(textChannels, message);
-        // message.channel.send(`> Channels ${await getChannelNames(textChannels)}`)
-        // message.channel.send(`> Channels ${await getChannelNames(textChannels)}`)
+        const channelsArr = await getChannelNames(textChannels, message);
+        // ! spreads new channel array and turns them into selections
+        const row = new discord_js_1.ActionRowBuilder()
+            .addComponents(new discord_js_1.SelectMenuBuilder()
+            .setCustomId('channel_select')
+            .setPlaceholder('Nothing Selected')
+            .addOptions(...channelsArr));
+        await message.reply({ content: "Select a notes channel.", components: [row] });
     }
     console.log("no");
 });
