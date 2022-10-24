@@ -21,9 +21,9 @@ const createCategory = async (message, categoryName) => {
 };
 exports.createCategory = createCategory;
 //if category exists returns the id else it makes the category and returns the id and that it exists
-const getCategory = async (client, message, categoryName) => {
-    const category = await client.channels.cache.find(category => category.name == categoryName);
-    console.log("AAAAAAA \n", message, categoryName);
+const getCategory = async (guild, message, categoryName) => {
+    const category = await guild.channels.cache.find(category => category.name == categoryName);
+    console.log("AAAAAAA \n", message, "AAAAAAA categordyNAmeees: ", categoryName);
     console.log("\n category: " + category);
     const msg = message;
     if (category) {

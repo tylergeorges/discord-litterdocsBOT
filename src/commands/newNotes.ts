@@ -10,8 +10,10 @@ export const newNotes = async (client: Client, message: Message, channelName: st
 
         let guild:Guild  = client.guilds.cache.get(guildId) as Guild
 
-        //! when first creating notes channel 
-        const category = await getCategory(client, guild, categoryName)
+        //! when first creating notes channel, Category is the NOTES category which has all text channels 
+        const category = await getCategory(guild, message, categoryName)
+
+        console.log("channelNamechannelName: ", channelName)
 
         //* creates text channel
        await guild?.channels.create({ name: channelName,  type: ChannelType.GuildText,  parent: category?.id })
@@ -22,7 +24,9 @@ export const newNotes = async (client: Client, message: Message, channelName: st
 
 
             //* creates thread upon creation of channel
-            await channel.threads.create({ name: 'section-1'})
+           const newThread = await channel.threads.create({ name: 'section-1'})
+
+           console.log("newThreadnewThread section-1: ", newThread)
         })
         .catch(console.error)
 

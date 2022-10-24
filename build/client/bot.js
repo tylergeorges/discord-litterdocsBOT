@@ -19,8 +19,11 @@ const clientIntents = [
 //! convert to typescript
 const getThreadNames = async (parentId, message, interaction) => {
     const guild = message.guild;
-    const parentChannel = await (0, channel_1.getChannelById)(exports.client, parentId);
-    const threads = await (0, channel_1.getThreads)(parentId, guild);
+    const textChannel = await (0, channel_1.getChannelById)(exports.client, parentId);
+    console.log("PARENdTTdsTTSS: ", textChannel.name);
+    //! returns all threads in selected text channel
+    const threads = await (0, channel_1.getThreads)(textChannel, guild);
+    console.log("TEHREADSSSSbcb: ", threads);
     //! returns new array with threads data
     const threadsArr = threads.map((thread, key) => {
         return {
@@ -33,7 +36,7 @@ const getThreadNames = async (parentId, message, interaction) => {
     const row = new discord_js_1.ActionRowBuilder()
         .addComponents(new discord_js_1.SelectMenuBuilder()
         .setCustomId('thread_select')
-        .setPlaceholder(`Select thread in channel ${parentChannel.name}`)
+        .setPlaceholder(`Select thread in channel ${textChannel.name}`)
         .addOptions(...threadsArr));
     interaction.reply({ components: [row], ephemeral: true });
 };
@@ -62,7 +65,8 @@ exports.client.on('interactionCreate', async (interaction) => {
             case "channel_select":
                 const repliedTo = await interaction.channel?.messages.cache.last()?.fetchReference();
                 const parentId = interaction.values[0];
-                const parent = interaction.client.channels.fetch(parentId);
+                // const parent = await interaction.client.channels.fetch(parentId) as Channel
+                console.log("SABFYDUASuio: ");
                 getThreadNames(parentId, repliedTo, interaction);
                 break;
             //! once thread from menu is selected
@@ -71,7 +75,6 @@ exports.client.on('interactionCreate', async (interaction) => {
                 const thread = await interaction.client.channels.fetch(threadId);
                 const lastMsg = await (await interaction.channel?.messages.cache.last()?.fetchReference())?.fetchReference();
                 const channelSelect = await interaction.channel?.messages.cache.last()?.fetchReference();
-                console.log(thread, lastMsg);
                 //! if last message is a thread select menu replace it
                 // console.log("last message: ", lastMsg.components, lastMsg.content)
                 // , "\n interaction: ", interaction

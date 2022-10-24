@@ -12,7 +12,17 @@ const CommandHandler = async (client, message, command) => {
         case 'new_notes':
             //! splits channel name from command 
             const channelName = `📝${message.content.split(command)[1].trim()}`;
-            const channelExists = await (0, channel_1.getChannelByName)(client, channelName, guild);
+            const channelArgs = {
+                channelName: channelName,
+                guild: guild
+            };
+            const channelExists = await (0, channel_1.getChannelByName)(channelName, guild);
+            const newNotesArgs = {
+                client: client,
+                message: message,
+                channelName: channelName,
+                categoryName: categoryName
+            };
             !channelExists ?
                 (0, newNotes_1.newNotes)(client, message, channelName, categoryName)
                 :

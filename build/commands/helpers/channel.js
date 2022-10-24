@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getThreads = exports.getAllChannels = exports.getChannelById = exports.getChannelByName = void 0;
 const discord_js_1 = require("discord.js");
 //returns true or false
-const getChannelByName = async (client, channelName, guild) => {
+const getChannelByName = async (channelName, guild) => {
     //finds and returns channel from channel name
     let channel = guild.channels.cache.find((channel) => channel.name == channelName);
     return channel;
@@ -21,9 +21,13 @@ const getAllChannels = async (client, guild) => {
     return channels;
 };
 exports.getAllChannels = getAllChannels;
-const getThreads = async (parentId, guild) => {
+const getThreads = async (parent, guild) => {
     //! returns all thread channels
-    let threads = await guild.channels.cache.filter(channel => channel.isThread() && channel.parentId == parentId);
+    //    const teststt = await parent.client.channels.cache.get(parent.id)
+    // console.log("GETthreadsdsa parentID: ", teststt, " \n getTHREADSguild: ", guild)
+    let threads = await parent.threads.cache.filter(x => x.isThread());
+    // guild.channels.guild.channels.
+    console.log("saDSADBBcBewSADQC ans : ", threads);
     return threads;
 };
 exports.getThreads = getThreads;

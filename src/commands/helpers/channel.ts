@@ -1,7 +1,7 @@
-import { Client, GatewayIntentBits, AnyThreadChannel, PublicThreadChannel, Message, ThreadChannel, Channel, GuildChannel, TextChannel, Guild, ChannelType, GuildBasedChannel, Collection, TextBasedChannel} from  'discord.js'
+import { Client, GatewayIntentBits, AnyThreadChannel, PublicThreadChannel, Message, ThreadChannel, Channel, GuildChannel, TextChannel, Guild, ChannelType, GuildBasedChannel, Collection, TextBasedChannel, ThreadManager, AllowedThreadTypeForTextChannel} from  'discord.js'
 
 //returns true or false
-export const getChannelByName = async (client: Client, channelName: string, guild: Guild): Promise<AnyThreadChannel>=>{
+export const getChannelByName = async (channelName: string, guild: Guild): Promise<AnyThreadChannel>=>{
     //finds and returns channel from channel name
     let channel = guild.channels.cache.find((channel: GuildBasedChannel) =>  channel.name == channelName) as AnyThreadChannel
 
@@ -25,11 +25,17 @@ export const getAllChannels = async (client:Client, guild: Guild): Promise<Colle
     return channels
 }
 
-export const getThreads = async (parentId, guild: Guild): Promise<Collection<string, GuildBasedChannel>>  =>{
+export const getThreads =  async (parent: TextChannel, guild: Guild):  Promise< Collection<string, ThreadChannel>>  =>{
     //! returns all thread channels
 
+//    const teststt = await parent.client.channels.cache.get(parent.id)
 
-    let threads =  await guild.channels.cache.filter(channel => channel.isThread() && channel.parentId == parentId)
-
+   
+    // console.log("GETthreadsdsa parentID: ", teststt, " \n getTHREADSguild: ", guild)
+    let threads =  await parent.threads.cache.filter(x => x.isThread())
+    
+    // guild.channels.guild.channels.
+    console.log("saDSADBBcBewSADQC ans : ",  threads)
+    
     return threads
 }

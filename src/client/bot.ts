@@ -1,5 +1,5 @@
 require('dotenv').config()
-import { Client, GatewayIntentBits, ActionRowBuilder, APIActionRowComponent, SelectMenuBuilder, Collection, Guild,GuildBasedChannel, Interaction, AnyComponent, AnyComponentBuilder, Message, APIMessageActionRowComponent, SelectMenuInteraction, ThreadChannel, EmbedBuilder} from  'discord.js'
+import { Client, GatewayIntentBits, ActionRowBuilder, APIActionRowComponent, SelectMenuBuilder, Collection, Guild,GuildBasedChannel, Interaction, AnyComponent, AnyComponentBuilder, Message, APIMessageActionRowComponent, SelectMenuInteraction, ThreadChannel, EmbedBuilder, Channel, TextChannel} from  'discord.js'
 import { getAllChannels, getChannelById, getThreads } from '../commands/helpers/channel'
 import { CommandHandler } from '../handlers/CommandHandler'
 
@@ -24,12 +24,18 @@ const clientIntents = [
 const getThreadNames = async (parentId: string, message: Message, interaction: SelectMenuInteraction) =>{
 	
 	const guild: Guild = message.guild!
-	const parentChannel = await getChannelById(client, parentId)
-
-	
-	const threads = await getThreads(parentId, guild)
 
 
+	const textChannel = await getChannelById(client, parentId)
+
+
+	console.log("PARENdTTdsTTSS: ", textChannel.name)
+
+	//! returns all threads in selected text channel
+	const threads = await getThreads(textChannel, guild)
+
+
+	console.log("TEHREADSSSSbcb: ", threads,)
 			//! returns new array with threads data
 			const threadsArr = threads.map((thread, key) =>   {
 				return {
@@ -46,7 +52,7 @@ const getThreadNames = async (parentId: string, message: Message, interaction: S
 				.addComponents(
 					new SelectMenuBuilder()
 					.setCustomId('thread_select')
-					.setPlaceholder(`Select thread in channel ${parentChannel.name}`)
+					.setPlaceholder(`Select thread in channel ${textChannel.name}`)
 					.addOptions(...threadsArr)
 				)
 		
@@ -107,9 +113,9 @@ client.on('interactionCreate', async interaction  => {
 
 		const parentId = interaction.values[0]
 
-		const parent = interaction.client.channels.fetch(parentId)
-
+		// const parent = await interaction.client.channels.fetch(parentId) as Channel
 		
+		console.log("SABFYDUASuio: ",)
 		getThreadNames(parentId, repliedTo, interaction)
 
 			
@@ -119,14 +125,13 @@ client.on('interactionCreate', async interaction  => {
 		case "thread_select": 
 		const threadId = interaction.values[0] 
 		const thread = await interaction.client.channels.fetch(threadId) as ThreadChannel
-
+		
 		const lastMsg = await (await interaction.channel?.messages.cache.last()?.fetchReference())?.fetchReference() as Message
 		
 		const channelSelect = await interaction.channel?.messages.cache.last()?.fetchReference() as Message
 
 
 
-		console.log(thread, lastMsg)
 		
 		//! if last message is a thread select menu replace it
 		// console.log("last message: ", lastMsg.components, lastMsg.content)
@@ -180,6 +185,7 @@ client.on("messageCreate", async message =>{
 
           const channelsArr = await getChannelNames(textChannels,message)
 			
+
 
 
 

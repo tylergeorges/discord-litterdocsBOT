@@ -18,10 +18,21 @@ export const CommandHandler = async (client: Client, message: Message, command: 
             //! splits channel name from command 
             const channelName = `📝${message.content.split(command)[1].trim()}`
 
-            const channelExists = await getChannelByName(client, channelName, guild)
+            const channelArgs = {
+                channelName: channelName,
+                guild: guild
+            }
 
+            const channelExists = await getChannelByName(channelName, guild)
+
+            const newNotesArgs = {
+                client: client, 
+                message: message, 
+                channelName: channelName, 
+                categoryName: categoryName
+            }
              !channelExists ?
-             newNotes(client, message, channelName, categoryName) 
+                newNotes(client, message, channelName, categoryName) 
              : 
              await message.channel.send("Channel already exists!")
 

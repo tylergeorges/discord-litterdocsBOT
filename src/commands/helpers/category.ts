@@ -1,3 +1,5 @@
+import { Guild, Message } from 'discord.js';
+import { Client } from 'discord.js';
 import {ChannelType} from 'discord.js'
 
 
@@ -30,11 +32,11 @@ export const createCategory = async ( message, categoryName) =>{
 
 
 //if category exists returns the id else it makes the category and returns the id and that it exists
-export const getCategory =  async (client, message, categoryName) =>{
+export const getCategory =  async (guild: Guild, message: Message, categoryName: string) =>{
 
-    const category = await client.channels.cache.find(category => category.name == categoryName)
+    const category = await guild.channels.cache.find(category => category.name == categoryName)
     
-    console.log("AAAAAAA \n",  message, categoryName)
+    console.log("AAAAAAA \n",  message, "AAAAAAA categordyNAmeees: ",categoryName)
     
     console.log("\n category: " + category)
     const msg = message
@@ -43,7 +45,6 @@ export const getCategory =  async (client, message, categoryName) =>{
         return  {exists: true, id: category.id}
     }
     else {
-        return  await createCategory(msg, categoryName)
+        return await createCategory(msg, categoryName)
     }
 }
-
